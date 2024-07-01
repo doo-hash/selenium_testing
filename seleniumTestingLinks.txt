@@ -1,0 +1,226 @@
+mock geo location in web page
+Page.setGeolocationOverride(chrome dev tools protocal portal)
+latitude : 39.03565
+longitude: -93.73178
+
+38.773821373588966, -93.71801379630091
+
+Map<String, Object> mockLocation = new HashMap<String, Object>();
+mockLocation.put("latitude", 39.03565);
+mockLocation.put("longitude",-93.73178);
+mockLocation.put("accuracy",1);
+
+((ChromeDriver)driver).executeCdpCommand("Page.setGeolocationOverride",mockLocation);
+driver.get("novoproso link");
+
+
+
+http://makeseleniumeasy.com/2017/05/12/handling-webelement-textbox/
+https://www.lambdatest.com/blog/handling-dropdowns-in-selenium-webdriver-java/
+https://javabeginnerstutorial.com/selenium/9t-webdriver-handling-radio-buttons-checkboxes/
+
+Scroll up or down:
+https://www.browserstack.com/guide/selenium-scroll-tutorial
+
+isDisplayed Selected or isEnabled:
+https://www.browserstack.com/guide/isdisplayed-method-in-selenium
+
+Actions/interactions:
+https://www.geeksforgeeks.org/how-to-handle-action-class-in-selenium/
+
+***********************************************
+Beginner concepts:
+* Screenshots
+* dropdown select
+* isDispayed/isSelected/isEnabled
+* findElement
+
+custom defined function in webdriverwait for explicitly wait:
+
+Function <WebDriver, Boolean> functionname = new Function <WebDriver, Boolean>(){
+
+@Override
+public Boolean apply(WebDriver driver){
+	//define anything here
+	return driver.findElement(By.id("idname")).isDisplayed();
+}
+};
+
+wait.until(functionname);
+
+other expressions for explicit wait:
+* using lambda expression
+wait.until(d -> driver.findElement(By.id("idname")).isDisplayed());
+* wait.until(ExpectedConditions.visibilityOf(driver.findElement(By.id("idname")));
+
+
+**************
+* Fluentwait increases complexity
+
+		FluentWait<WebDriver> fluentwait = new FluentWait<WebDriver>(driver);
+		fluentwait.withTimeout(Duration.ofSeconds(5));
+**********************
+Error occurred while using webdrivermanager:
+
+java.lang.NoSuchMethodError: 'java.lang.String org.apache.commons.io.IOUtils.toString(java.io.InputStream, java.nio.charset.Charset)'
+
+
+<dependency>
+    <groupId>com.microsoft.edge</groupId>
+    <artifactId>msedge-selenium-tools-java</artifactId>
+    <version>3.141.1</version>
+</dependency>
+
+***********************************************
+JavascriptExecutor:
+
+inspect element from console
+
+static:
+id - document.getElementById('email');
+name - document.getElementsByName('email')[0];
+classname - document.getElementsByClassName('emailclass')[0];
+tagname - document.getElementsByTagName('input')[2];
+
+dynamic:
+css selector - document.querySelector('#email');
+xpath - document.evaluate("//input[@id='email']", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+
+document.evaluate(xpathExpression,contexNode, namespaceResolver, resultType, result).singleNodeValue;
+
+namespaceResolver - only needed for xml documents
+
+element highlight:
+
+1 for border
+2. for background
+3. for border + background
+
+
+in console: 
+border:
+document.getElementById('email').style.border;
+document.getElementById('email').style.border = '2px solid red';
+
+background:
+document.getElementById('email').style.background = 'yellow';
+
+for both:
+javascriptExecutor.executeScript("document.getElementById('email').setAttribute('style', 'background: #FFFACD;border: 2px solid #FCF75E;')");
+
+
+Scroll:
+
+Scroll/ScrollTo
+ScrollBy
+ScrollIntoView
+
+document.getElementById("footer").scrollIntoView();
+
+*************************************************
+	@Disabled
+	@Test
+	void implicitWaitTest() throws InterruptedException, IOException {
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(6, TimeUnit.SECONDS);
+		driver.get("https://testproject.io");		
+		String parentWindow = driver.getWindowHandle();
+		driver.findElement(By.linkText("Login")).click();
+		
+		Set<String> windowHandles = driver.getWindowHandles();
+		for(String windowHandle : windowHandles) {
+			if(!windowHandle.equals(parentWindow)) {
+				driver.switchTo().window(windowHandle);
+				driver.findElement(By.id("username")).sendKeys("username");
+			}
+		}
+	}
+*******************************************************
+		String pageSource = driver.getPageSource();
+		System.out.println(pageSource);
+************************************************
+	@Disabled
+	@Test
+	void pageLoadTest() throws InterruptedException, IOException {
+
+		//Throws TimeoutException
+//		driver.manage().timeouts().pageLoadTimeout(3, TimeUnit.SECONDS);
+
+		//throws InvalidArgumentException
+//		driver.manage().timeouts().pageLoadTimeout(-7, TimeUnit.SECONDS);
+
+		driver.manage().window().maximize();
+		
+		Instant startTime = Instant.now();
+		System.out.println(startTime.toString());
+		driver.get("https://novoproso.com/csr.html");
+		
+		Instant endTime = Instant.now();
+		System.out.println(endTime.toString());
+		Duration duration = Duration.between(startTime, endTime);
+		System.out.println("page Load Time: "+ duration.toMillis() + " millisecs");
+		System.out.println(driver.getTitle());
+		
+	}
+	
+	@Disabled
+	@Test
+	void ScreenShotTest() throws InterruptedException, IOException {
+//		driver.manage().window().maximize();
+//		driver.get("https://novoproso.com/csr.html");
+
+		remotedriver.manage().window().maximize();
+		remotedriver.get("https://novoproso.com/csr.html");
+//		remotedriver.getScreenshotAs(OutputType.FILE);
+		
+		//Full screenshot as file
+//		File screenshotsrcdata = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+//		File destFile = new File("./screenshots/image1.jpg");
+//		FileUtils.copyFile(screenshotsrcdata, destFile);
+//		System.out.println("screenshot saved successful");
+
+		//Full screenshot through bytes
+//		byte[] bytearr = ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+//		File destFile = new File("./screenshots/imageBytes.jpg");
+//		FileOutputStream fos = new FileOutputStream(destFile);
+//		fos.write(bytearr);
+//		fos.close();
+//		System.out.println("screenshot saved successful");
+		
+		//Full screenshot through 
+		String base64code = remotedriver.getScreenshotAs(OutputType.BASE64);
+		byte[] byteArr = Base64.getDecoder().decode(base64code);
+		File destFile = new File("./screenshots/remoteimageBase64.jpg");
+		FileOutputStream fos = new FileOutputStream(destFile);
+		fos.write(byteArr);
+		fos.close();
+		System.out.println("screenshot saved successful");
+		
+		//footer screenshot
+//		jsExecutor.executeScript("window.scrollBy(0, document.body.scrollHeight)");
+//		WebElement section = driver.findElement(By.cssSelector("footer"));
+//		File footersrc = section.getScreenshotAs(OutputType.FILE);
+//		File footerdest = new File("./screenshots/footer.jpg");
+//		FileUtils.copyFile(footersrc, footerdest);
+//		System.out.println("screenshot saved successful");		
+	}
+
+**********************************************
+move the cursor away from element
+		//move the cursor away
+//		Point servicesLinkLocation = servicesLink.getLocation();
+//		System.out.println(servicesLinkLocation);
+//		action.moveByOffset(servicesLinkLocation.x, servicesLinkLocation.y + 25);
+
+
+********************************************
+to send data to input in forms:
+
+method 1:
+inputElement.sendKeys("input data");
+
+method 2:
+WebDriver driver = new EdgeDriver();
+WebElement inputElement = driver.findElement(By.id("inputid"));
+JavascriptExecutor js = (JavascriptExecutor) driver;
+js.executeScript("arguments[0].value='input data'", inputElement);
